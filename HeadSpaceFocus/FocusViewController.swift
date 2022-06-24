@@ -12,9 +12,9 @@ class FocusViewController: UIViewController {
     @IBOutlet weak var refreshButton: UIButton!
     
     var items: [Focus] = Focus.list
-    var curated: Bool = false
     var datasource: UICollectionViewDiffableDataSource<Section, Item>!
-
+    var curated: Bool = false
+    
     typealias Item = Focus
     enum Section {
         case main
@@ -36,6 +36,13 @@ class FocusViewController: UIViewController {
         updateButtonTitle()
     }
     
+    private func doSnapshot() {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(items, toSection: .main)
+        datasource.apply(snapshot)
+    }
+    
     private func layout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(50))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -44,25 +51,17 @@ class FocusViewController: UIViewController {
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         section.interGroupSpacing = 10
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
-        
         return layout
-    }
-    
-    func doSnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-        snapshot.appendSections([.main])
-        snapshot.appendItems(items, toSection: .main)
-        datasource.apply(snapshot)
     }
     
     func updateButtonTitle() {
         let title = curated ? "See All" : "See Recommendation"
         refreshButton.setTitle(title, for: .normal)
-    }
+     }
     
     @IBAction func refreshButtonTapped(_ sender: Any) {
         curated.toggle()
@@ -70,5 +69,4 @@ class FocusViewController: UIViewController {
         doSnapshot()
         updateButtonTitle()
     }
-    
 }
